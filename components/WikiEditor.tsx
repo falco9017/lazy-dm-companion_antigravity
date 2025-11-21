@@ -7,7 +7,7 @@ import Link from "next/link";
 interface RelatedPage {
     id: string;
     title: string;
-    icon: string;
+    icon: string | null;
     content: string | null;
 }
 
@@ -21,7 +21,7 @@ export default function WikiEditor({
         id: string;
         title: string;
         content: string | null;
-        icon: string;
+        icon: string | null;
         relatedPages: string | null;
     };
     campaignId: string;
@@ -30,7 +30,7 @@ export default function WikiEditor({
 }) {
     const [title, setTitle] = useState(entry.title);
     const [content, setContent] = useState(entry.content || "");
-    const [icon, setIcon] = useState(entry.icon);
+    const [icon, setIcon] = useState(entry.icon || "");
     const [isSaving, setIsSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const router = useRouter();

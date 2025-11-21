@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
 
@@ -14,11 +14,12 @@ export async function PUT(
     }
 
     try {
+        const { id } = await params;
         const body = await request.json();
         const { title, description } = body;
 
         const campaign = await prisma.campaign.findUnique({
-            where: { id: params.id }
+            where: { id }
         });
 
         if (!campaign || campaign.userId !== (session.user as any).id) {
@@ -26,7 +27,7 @@ export async function PUT(
         }
 
         const updatedCampaign = await prisma.campaign.update({
-            where: { id: params.id },
+            where: { id },
             data: { title, description }
         });
 
@@ -39,7 +40,7 @@ export async function PUT(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
 
@@ -48,8 +49,9 @@ export async function DELETE(
     }
 
     try {
+        const { id } = await params;
         const campaign = await prisma.campaign.findUnique({
-            where: { id: params.id }
+            where: { id }
         });
 
         if (!campaign || campaign.userId !== (session.user as any).id) {
@@ -58,7 +60,7 @@ export async function DELETE(
 
         // This will cascade delete all sessions and wiki entries
         await prisma.campaign.delete({
-            where: { id: params.id }
+            where: { id }
         });
 
         return NextResponse.json({ message: "Campaign deleted successfully" });

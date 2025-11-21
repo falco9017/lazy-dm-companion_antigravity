@@ -42,7 +42,8 @@ function buildTree(entries: any[]): any[] {
     return roots;
 }
 
-export default async function WikiIndexPage({ params }: { params: { id: string } }) {
+export default async function WikiIndexPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -50,7 +51,7 @@ export default async function WikiIndexPage({ params }: { params: { id: string }
     }
 
     const campaign = await prisma.campaign.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
             wikiEntries: {
                 orderBy: { order: "asc" }
@@ -58,7 +59,7 @@ export default async function WikiIndexPage({ params }: { params: { id: string }
         }
     });
 
-    if (!campaign || campaign.userId !== (session.user as any).id) {
+    if (!campaign || campaign.userId !== session.user.id) {
         notFound();
     }
 
@@ -74,7 +75,7 @@ export default async function WikiIndexPage({ params }: { params: { id: string }
             <div style={{ marginLeft: "280px", padding: "3rem", flex: 1, maxWidth: "900px" }}>
                 <h1>{campaign.title} - {t.wiki.title}</h1>
                 <p style={{ color: "var(--text-secondary)", marginTop: "1rem" }}>
-                    {t.wiki.selectOrCreate || "Select a page from the sidebar or create a new one to get started."}
+                    Select a page from the sidebar or create a new one to get started.
                 </p>
             </div>
         </div>

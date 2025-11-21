@@ -7,8 +7,9 @@ import { notFound, redirect } from "next/navigation";
 export default async function SessionDetailPage({
     params,
 }: {
-    params: { id: string; sessionId: string };
+    params: Promise<{ id: string; sessionId: string }>;
 }) {
+    const { id, sessionId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -16,18 +17,18 @@ export default async function SessionDetailPage({
     }
 
     const gameSession = await prisma.gameSession.findUnique({
-        where: { id: params.sessionId },
+        where: { id: sessionId },
         include: { campaign: true },
     });
 
-    if (!gameSession || gameSession.campaign.userId !== (session.user as any).id) {
+    if (!gameSession || gameSession.campaign.userId !== session.user.id) {
         notFound();
     }
 
     return (
         <div className="container" style={{ maxWidth: "800px" }}>
             <div style={{ marginBottom: "2rem" }}>
-                <Link href={`/campaigns/${params.id}`} style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                <Link href={`/campaigns/${id}`} style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
                     ← Back to Campaign
                 </Link>
             </div>

@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function POST(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
 
@@ -14,27 +14,28 @@ export async function POST(
     }
 
     try {
+        const { id } = await params;
         const body = await request.json();
         const { title, parentId, icon } = body;
 
         // Verify campaign ownership
         const campaign = await prisma.campaign.findUnique({
-            where: { id: params.id }
+            where: { id }
         });
 
-        if (!campaign || campaign.userId !== (session.user as any).id) {
+        if (!campaign || campaign.userId !== session.user.id) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         // Get the next order number
         const lastEntry = await prisma.wikiEntry.findFirst({
-            where: { campaignId: params.id, parentId: parentId || null },
+            where: { campaignId: id, parentId: parentId || null },
             orderBy: { order: "desc" }
         });
 
         const newEntry = await prisma.wikiEntry.create({
             data: {
-                campaignId: params.id,
+                campaignId: id,
                 parentId: parentId || null,
                 title: title || "Untitled",
                 content: "",

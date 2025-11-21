@@ -8,7 +8,7 @@ const genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY || "" });
 
 export async function POST(
     request: Request,
-    { params }: { params: { id: string; entryId: string } }
+    { params }: { params: Promise<{ id: string; entryId: string }> }
 ) {
     const session = await getServerSession(authOptions);
 
@@ -17,20 +17,21 @@ export async function POST(
     }
 
     try {
+        const { id, entryId } = await params;
         const entry = await prisma.wikiEntry.findUnique({
-            where: { id: params.entryId },
+            where: { id: entryId },
             include: { campaign: true }
         });
 
-        if (!entry || entry.campaign.userId !== (session.user as any).id) {
+        if (!entry || entry.campaign.userId !== session.user.id) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         // Get all other pages in the campaign
         const allPages = await prisma.wikiEntry.findMany({
             where: {
-                campaignId: params.id,
-                id: { not: params.entryId }
+                campaignId: id,
+                id: { not: entryId }
             },
             select: {
                 id: true,
@@ -61,7 +62,7 @@ Return a JSON array of page titles that would be relevant to cross-reference fro
 Format: ["Page Title 1", "Page Title 2", ...]`;
 
         const result = await genAI.models.generateContent({
-            model: "gemini-3-pro-preview",
+            model: "gemini-1.5-flash",
             contents: [{ role: "user", parts: [{ text: prompt }] }]
         });
 

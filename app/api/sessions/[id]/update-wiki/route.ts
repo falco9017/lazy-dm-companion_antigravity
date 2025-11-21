@@ -4,7 +4,8 @@ import { GoogleGenAI } from "@google/genai";
 
 const genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY || "" });
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    await params; // Extract params even if we don't use id in this handler
     const body = await request.json();
     const { recap, campaignId, title, transcription } = body;
 

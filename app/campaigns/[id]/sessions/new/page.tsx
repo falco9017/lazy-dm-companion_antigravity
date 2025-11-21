@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
-export default function NewSessionPage({ params }: { params: { id: string } }) {
+export default function NewSessionPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
     const { t } = useTranslation();
     const [step, setStep] = useState<"upload" | "transcribing" | "recap" | "saving">("upload");
     const [file, setFile] = useState<File | null>(null);
@@ -74,11 +75,11 @@ export default function NewSessionPage({ params }: { params: { id: string } }) {
         setError(null);
 
         try {
-            const res = await fetch(`/api/sessions/${params.id}/update-wiki`, {
+            const res = await fetch(`/api/sessions/${id}/update-wiki`, {
                 method: "POST",
                 body: JSON.stringify({
                     recap,
-                    campaignId: params.id,
+                    campaignId: id,
                     title: sessionTitle,
                     transcription
                 }),
@@ -89,7 +90,7 @@ export default function NewSessionPage({ params }: { params: { id: string } }) {
                 throw new Error(err.error || "Failed to save session");
             }
 
-            router.push(`/campaigns/${params.id}`);
+            router.push(`/campaigns/${id}`);
         } catch (e: any) {
             console.error("Save failed:", e);
             setError(e.message);
@@ -100,7 +101,7 @@ export default function NewSessionPage({ params }: { params: { id: string } }) {
     return (
         <div className="container" style={{ maxWidth: "800px" }}>
             <div style={{ marginBottom: "2rem" }}>
-                <Link href={`/campaigns/${params.id}`} style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+                <Link href={`/campaigns/${id}`} style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
                     ← {t.common.back}
                 </Link>
             </div>

@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string; sessionId: string } }
+    { params }: { params: Promise<{ id: string; sessionId: string }> }
 ) {
     const session = await getServerSession(authOptions);
 
@@ -14,9 +14,10 @@ export async function DELETE(
     }
 
     try {
+        const { sessionId } = await params;
         // Verify the session belongs to a campaign owned by the user
         const gameSession = await prisma.gameSession.findUnique({
-            where: { id: params.sessionId },
+            where: { id: sessionId },
             include: {
                 campaign: true
             }
@@ -32,7 +33,7 @@ export async function DELETE(
 
         // Delete the session
         await prisma.gameSession.delete({
-            where: { id: params.sessionId }
+            where: { id: sessionId }
         });
 
         return NextResponse.json({ message: "Session deleted successfully" });

@@ -40,7 +40,8 @@ function buildTree(entries: any[]): any[] {
     return roots;
 }
 
-export default async function WikiEntryPage({ params }: { params: { id: string; entryId: string } }) {
+export default async function WikiEntryPage({ params }: { params: Promise<{ id: string; entryId: string }> }) {
+    const { id, entryId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -48,7 +49,7 @@ export default async function WikiEntryPage({ params }: { params: { id: string; 
     }
 
     const campaign = await prisma.campaign.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
             wikiEntries: {
                 orderBy: { order: "asc" }
@@ -56,11 +57,11 @@ export default async function WikiEntryPage({ params }: { params: { id: string; 
         }
     });
 
-    if (!campaign || campaign.userId !== (session.user as any).id) {
+    if (!campaign || campaign.userId !== session.user.id) {
         notFound();
     }
 
-    const entry = campaign.wikiEntries.find(e => e.id === params.entryId);
+    const entry = campaign.wikiEntries.find(e => e.id === entryId);
 
     if (!entry) {
         notFound();

@@ -7,7 +7,8 @@ import { getDictionary } from "@/lib/dictionary";
 import DeleteSessionButton from "@/components/DeleteSessionButton";
 import CampaignHeader from "@/components/CampaignHeader";
 
-export default async function CampaignPage({ params }: { params: { id: string } }) {
+export default async function CampaignPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -15,7 +16,7 @@ export default async function CampaignPage({ params }: { params: { id: string } 
     }
 
     const campaign = await prisma.campaign.findUnique({
-        where: { id: params.id },
+        where: { id },
         include: {
             sessions: {
                 orderBy: { createdAt: "desc" },
@@ -23,7 +24,7 @@ export default async function CampaignPage({ params }: { params: { id: string } 
         },
     });
 
-    if (!campaign || campaign.userId !== (session.user as any).id) {
+    if (!campaign || campaign.userId !== session.user.id) {
         notFound();
     }
 

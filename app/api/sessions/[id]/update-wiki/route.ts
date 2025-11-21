@@ -29,41 +29,39 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     let extractedEntities: any[] = [];
     try {
         if (process.env.GOOGLE_API_KEY) {
-            const prompt = `
-        Extract key entities from the following D&D session recap and identify relationships between them.
-        Return a JSON array of objects with:
-        - 'type' (NPC, Location, Item, Event)
-        - 'title': The name of the entity
-        - 'content': Brief description
-        - 'icon': Single appropriate emoji
-        - 'relatedTo': Array of other entity titles that this one is related to (e.g., NPCs met at locations, items found in events)
-        
-        IMPORTANT: Keep all entity names and descriptions in the SAME LANGUAGE as the recap below. Do not translate.
-        
-        Example:
-        [
-          {
-            "type": "NPC", 
-            "title": "Griznak", 
-            "content": "A goblin shaman who guards the dark cave", 
-            "icon": "🧙",
-            "relatedTo": ["Dark Cave", "Ancient Amulet"]
-          },
-          {
-            "type": "Location", 
-            "title": "Dark Cave", 
-            "content": "A mysterious cavern in the northern mountains", 
-            "icon": "🏔️",
-            "relatedTo": ["Griznak"]
-          }
-        ]
-        
-        Recap:
-        "${recap}"
-      `;
+            const prompt = `Extract key entities from the following D&D session recap and identify relationships between them.
+Return a JSON array of objects with:
+- 'type' (NPC, Location, Item, Event)
+- 'title': The name of the entity
+- 'content': Brief description
+- 'icon': Single appropriate emoji
+- 'relatedTo': Array of other entity titles that this one is related to (e.g., NPCs met at locations, items found in events)
+
+IMPORTANT: Keep all entity names and descriptions in the SAME LANGUAGE as the recap below. Do not translate.
+
+Example:
+[
+  {
+    "type": "NPC", 
+    "title": "Griznak", 
+    "content": "A goblin shaman who guards the dark cave", 
+    "icon": "🧙",
+    "relatedTo": ["Dark Cave", "Ancient Amulet"]
+  },
+  {
+    "type": "Location", 
+    "title": "Dark Cave", 
+    "content": "A mysterious cavern in the northern mountains", 
+    "icon": "🏔️",
+    "relatedTo": ["Griznak"]
+  }
+]
+
+Recap:
+"${recap}"`;
 
             const result = await genAI.models.generateContent({
-                model: "gemini-3-pro-preview",
+                model: "gemini-2.5-flash",
                 contents: [{ role: "user", parts: [{ text: prompt }] }]
             });
 

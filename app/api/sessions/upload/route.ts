@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     try {
         // Upload to Supabase Storage
         // We use the user's email or ID as a folder prefix
-        const userId = session.user.email; // Using email as ID for now since we have it
+        const userId = session.user.email;
         const storagePath = await uploadTempAudio(file, userId);
 
         return NextResponse.json({

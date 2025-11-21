@@ -40,9 +40,9 @@ Use this format (plain text, no asterisks or icons):
 Transcription:
 ${transcription.substring(0, 30000)}`;
 
-        // Use Gemini 3.0 Pro for summarization
+        // Use Gemini 2.5 Flash for summarization
         const result = await genAI.models.generateContent({
-            model: "gemini-3-pro-preview",
+            model: "gemini-2.5-flash",
             contents: [{ role: "user", parts: [{ text: prompt }] }]
         });
 

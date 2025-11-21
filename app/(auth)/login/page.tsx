@@ -2,18 +2,33 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        await signIn("credentials", { email, password, callbackUrl: "/dashboard" });
-        setIsLoading(false);
+        setError("");
+
+        const result = await signIn("credentials", {
+            email,
+            password,
+            redirect: false,
+        });
+
+        if (result?.error) {
+            setError("Invalid email or password");
+            setIsLoading(false);
+        } else if (result?.ok) {
+            router.push("/dashboard");
+        }
     };
 
     const handleGuestLogin = async () => {
@@ -67,6 +82,21 @@ export default function LoginPage() {
                     <span style={{ padding: "0 1rem", fontSize: "0.85rem" }}>or sign in</span>
                     <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border-color)" }}></div>
                 </div>
+
+                {error && (
+                    <div style={{
+                        color: "var(--accent-red)",
+                        backgroundColor: "rgba(231, 76, 60, 0.1)",
+                        border: "1px solid rgba(231, 76, 60, 0.3)",
+                        borderRadius: "var(--radius-md)",
+                        padding: "0.75rem",
+                        marginBottom: "1rem",
+                        textAlign: "center",
+                        fontSize: "0.9rem"
+                    }}>
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit}>
                     <input

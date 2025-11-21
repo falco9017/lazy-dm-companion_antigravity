@@ -62,7 +62,7 @@ Return a JSON array of page titles that would be relevant to cross-reference fro
 Format: ["Page Title 1", "Page Title 2", ...]`;
 
         const result = await genAI.models.generateContent({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.5-flash",
             contents: [{ role: "user", parts: [{ text: prompt }] }]
         });
 

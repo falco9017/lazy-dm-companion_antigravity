@@ -34,14 +34,14 @@ export async function POST(request: Request) {
         else if (ext === ".flac") mimeType = "audio/flac";
         else if (ext === ".ogg") mimeType = "audio/ogg";
         else if (ext === ".mp4") mimeType = "audio/mp4";
-        else if (ext === ".webm") mimeType = "audio/webm"; // Added webm support
+        else if (ext === ".webm") mimeType = "audio/webm";
 
         // Convert to base64
         const base64Audio = fileBuffer.toString("base64");
 
-        // Use Gemini 3.0 Pro for audio transcription
+        // Use Gemini 2.5 Flash for audio transcription
         const result = await genAI.models.generateContent({
-            model: "gemini-1.5-flash", // Changed to 1.5-flash as 3.0-pro-preview might not be available/stable for everyone yet, or keep user's choice if they prefer
+            model: "gemini-2.5-flash",
             contents: [
                 {
                     role: "user",

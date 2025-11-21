@@ -1,0 +1,44 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Next.js
+.next
+out
+
+# Production
+build
+dist
+
+# Environment variables
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local database
+*.db
+*.db-journal
+dev.db
+dev.db-journal
+
+# Uploads (temporary files)
+uploads
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Vercel
+.vercel
